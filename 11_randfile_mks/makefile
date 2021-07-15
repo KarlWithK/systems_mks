@@ -1,19 +1,17 @@
 .POSIX:
 .PHONY: run clean
 CC= gcc
+CFLAGS=
 CFLAGS= -g -Wall -Wextra -Wpedantic -Wuninitialized -Wundef -Wcast-align -Wstrict-overflow=2 -Wwrite-strings -Wno-format-nonliteral
 BINARY=main
-OBJECTS= main.o fighter.o
+OBJECTS= main.o
 LFLAGS= -lasan
 
 $(BINARY): $(OBJECTS)
 	$(CC) -o $(BINARY) $(OBJECTS) $(LFLAGS)
 
-main.o: main.c fighter.h
-	$(CC) -c $< $(CFLAGS)
-
-fighter.o: fighter.c fighter.h
-	$(CC) -c $< $(CFLAGS)
+main.o: main.c
+	$(CC) $(CFLAGS) -c $<
 
 run: $(BINARY)
 	./$(BINARY)
