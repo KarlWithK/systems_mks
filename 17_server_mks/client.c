@@ -29,14 +29,14 @@ void handshake() {
 
   // Client sends name
   printf("[1] Sending name..\n");
-  int fd = open(WKP, O_WRONLY);
+  int8_t fd = open(WKP, O_WRONLY);
   if (fd == -1) {
     printf("Error opening WKP. %s\n", strerror(errno));
     exit(-1);
   }
 
   // writes name to wkp
-  int w_status = write(fd, wkp, sizeof(wkp));
+  int8_t w_status = write(fd, wkp, sizeof(wkp));
   if (w_status == -1) {
     printf("Error writing to FIFO. %s\n", strerror(errno));
     exit(-1);
@@ -44,9 +44,9 @@ void handshake() {
 
   // clients receives sserver's message
   mkfifo(wkp, PERMS);
-  int connection = open(wkp, sizeof(wkp));
+  int8_t connection = open(wkp, sizeof(wkp));
   char response[BUF_SIZE];
-  int r_status = read(connection, response, sizeof(response));
+  int8_t r_status = read(connection, response, sizeof(response));
   if (r_status == -1) {
     printf("Error reading from server. %s\n", strerror(errno));
     exit(-1);
@@ -68,7 +68,7 @@ int main() {
   handshake();
   signal(SIGINT, sighandler);
   char buffer[BUF_SIZE];
-  int link;
+  int8_t link;
 
   while (1) {
     printf("Send rot13 message: ");

@@ -22,12 +22,12 @@ void setup_handshake() {
   // WKP = Well Known Pipe
   mkfifo(WKP, PERMS);
   char p_name[BUF_SIZE];
-  int fd = open(WKP, O_RDONLY);
+  int8_t fd = open(WKP, O_RDONLY);
   if (fd == -1) {
     printf("Error opening WKP. %s\n", strerror(errno));
     exit(-1);
   }
-  int r_status = read(fd, p_name, sizeof(p_name));
+  int8_t r_status = read(fd, p_name, sizeof(p_name));
   if (r_status == -1) {
     printf("Error reading from WKP. %s\n", strerror(errno));
     unlink(WKP);
@@ -37,12 +37,12 @@ void setup_handshake() {
   printf("[2] connecting with %s...\n", p_name);
 
   /// Server tries to connect to client
-  int p_connect = open(p_name, O_WRONLY);
+  int8_t p_connect = open(p_name, O_WRONLY);
   if (p_connect == -1) {
     printf("Error connecting with client. %s\n", strerror(errno));
     exit(-1);
   }
-  int w_status = write(p_connect, connected, sizeof(connected));
+  int8_t w_status = write(p_connect, connected, sizeof(connected));
   if (w_status == -1) {
     printf("Error writing to client. %s\n", strerror(errno));
     exit(-1);
@@ -50,7 +50,7 @@ void setup_handshake() {
 
   /// Server receives client's message, and handshake is complete
   char handshake_confirm[256];
-  int h_status = read(fd, handshake_confirm, sizeof(handshake_confirm));
+  int8_t h_status = read(fd, handshake_confirm, sizeof(handshake_confirm));
   if (h_status == -1) {
     printf("Error reading confirmation from client. %s\n", strerror(errno));
     exit(-1);
@@ -77,9 +77,9 @@ static void sighandler(int signo) {
 
 // rot 13
 void rot13(char *input) {
-  int len = strlen(input);
-  char current;
-  for (int i = 0; i < len; i++) {
+  int8_t len = strlen(input);
+  u_int8_t current;
+  for (int8_t i = 0; i < len; i++) {
     current = input[i];
     if ('a' <= current && current <= 'z') {
       current = (((current - 'a') + 13) % 26) + 'a';
@@ -96,23 +96,23 @@ int main() {
   mkfifo(CLIENT, PERMS);
   signal(SIGINT, sighandler);
   signal(SIGPIPE, sighandler);
-  char buffer[BUF_SIZE];
-  int link;
+  char user_input[BUF_SIZE];
+  int8_t link;
 
   while (1) {
     sleep(3);
     link = open(SERVER, O_RDONLY);
-    read(link, buffer, BUF_SIZE);
-    if (!strcmp(buffer, "quit")) {
+    read(link, user_input, BUF_SIZE);
+    if (!strcmp(user_input, "quit")) {
         printf("Connection ended.");
         break;
     }
     close(link);
-    printf("Recieved msg: %s", buffer);
-    rot13(buffer);
-    printf("Message sent: %s", buffer);
+    printf("Recieved msg: %s", user_input);
+    rot13(user_input);
+    printf("Message sent: %s", user_input);
     link = open(CLIENT, O_WRONLY);
-    write(link, buffer, sizeof(buffer));
+    write(link, user_input, sizeof(user_input));
     close(link);
   }
 
